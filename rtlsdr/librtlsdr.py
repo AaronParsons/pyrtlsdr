@@ -158,6 +158,10 @@ try:
 except AttributeError:
     tuner_set_bandwidth_supported = False
 
+# int rtlsdr_set_fir_coeffs(rtlsdr_dev_t *dev, const int *fir_coeffs);
+f = librtlsdr.rtlsdr_set_fir_coeffs
+f.restype, f.argtypes = c_int, [p_rtlsdr_dev, POINTER(c_int)]
+
 #/* streaming functions */
 
 # int rtlsdr_reset_buffer(rtlsdr_dev_t *dev);

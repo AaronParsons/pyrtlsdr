@@ -437,6 +437,25 @@ class BaseRtlSdr(object):
 
         return result
 
+    def set_fir_coeffs(self, fir_coeffs):
+        """Set the FIR coefficients of the down-converter.
+
+        Arguments:
+            fir_coeffs: numpy ndarray of 16 FIR coeffs.
+        """
+        assert has_numpy
+        assert fir_coeffs.size == 16
+        assert np.all(fir_coeffs[:8].clip(-128, 127) == fir_coeffs[:8])
+        assert np.all(fir_coeffs[8:].clip(-2048, 2047) == fir_coeffs[8:])
+        fir_coeffs = fir_coeffs.astype('int32')
+        fir_coeffs = fir_coeffs.ctypes.data_as(POINTER(c_int32))
+
+        result = librtlsdr.rtlsdr_set_fir_coeffs(self.dev_p, fir_coeffs)
+        if result < 0:
+            raise LibUSBError(result, 'Could not set fir coeffs')
+
+        return result
+
     def get_tuner_type(self):
         """Get the tuner type.
 
