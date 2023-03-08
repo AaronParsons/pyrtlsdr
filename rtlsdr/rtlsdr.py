@@ -39,6 +39,8 @@ try:
 except ImportError:
     has_numpy = False
 
+# XXX TODO: get number of FIR coeffs from librtlsdr
+
 
 class BaseRtlSdr(object):
     """Core interface for most API functionality
@@ -455,6 +457,22 @@ class BaseRtlSdr(object):
             raise LibUSBError(result, 'Could not set fir coeffs')
 
         return result
+
+    def get_fir_coeffs(self):
+        """Get the FIR coefficients of the down-converter.
+
+        Return:
+            half_fir_coeffs: numpy ndarray of 16 FIR coeffs.
+        """
+        assert has_numpy
+        half_fir_coeffs = np.empty(16, dtype='int32')
+        buf = half_fir_coeffs.ctypes.data_as(POINTER(c_int32))
+
+        result = librtlsdr.rtlsdr_get_fir_coeffs(self.dev_p, buf)
+        if result < 0:
+            raise LibUSBError(result, 'Could not get fir coeffs')
+
+        return half_fir_coeffs
 
     def get_tuner_type(self):
         """Get the tuner type.
